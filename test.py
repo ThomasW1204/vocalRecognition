@@ -31,21 +31,6 @@ def getEdgeDriver():
     
     return driver
 
-#driver = getEdgeDriver()
-#
-# driver.get("https://accounts.google.com/signin")
-
-#driver.execute_script("window.open('https://example.com', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,width=800,height=600');")
-#driver.switch_to.window(driver.window_handles[-1])
-
-#driver.get("edge://newtab")  # truly blank tab
-#driver.switch_to.window(driver.window_handles[-1])
-
-#driver.execute_script("window.open('https://example.com', '_blank');")
-
-# print(driver.title)
-# time.sleep(5)
-# driver.quit()
 
 
 r = sr.Recognizer()         #microphone
@@ -91,23 +76,6 @@ def parse_command(text):
     if not parts:
         return "", ""
     return parts[0], " ".join(parts[1:])
-
-
-#get the specific chrome profile to launch
-# def getChromeDriver():
-#     global driver
-#     if driver is None:
-#         chrome_options = Options()
-#         chrome_options.add_argument(r"user-data-dir=C:\\Users\\tmarv\\AppData\\Local\\Google\\Chrome\\User Data")
-#         chrome_options.add_argument(r"profile-directory=Profile 3")
-#         try:
-#             driver = webdriver.Chrome(options=chrome_options)
-
-#         except Exception as e:
-#             print("Chrome failed to start:", e)
-#             speak("Chrome failed to start.")
-#             return None
-#     return driver
 
 
 
@@ -168,6 +136,8 @@ while True:
             #add take note (opens a notpad and writes what you say)
             #add question and answer like siri ai 
             #add open spotify app / and play playlist
+            #one computer startup open and run 
+            #gui to get feedback taskbar icon
 
 
         #COMPLETED
