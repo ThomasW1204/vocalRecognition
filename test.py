@@ -9,36 +9,43 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-# options = Options()
-# options.add_argument(r"user-data-dir=C:\Users\tmarv\AppData\Local\Google\Chrome\User Data")
-# options.add_argument(r"profile-directory=Profile 3")
+from selenium import webdriver
+from selenium.webdriver.edge.options import Options 
+from selenium.webdriver.edge.service import Service
+
 
 driver = None  # Initially no browser is open
 
 
-#driver.get('https://www.google.com')
+def getEdgeDriver():
+    service = Service("C:\\WebDrivers\\msedgedriver.exe")
+    options = Options()
+    options.add_argument(r"--user-data-dir=C:\\Users\\tmarv\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+    driver = webdriver.Edge(service=service, options=options)
+    
+    # Hide webdriver flag
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    
+    return driver
 
-# Open two new tabs
-#driver.execute_script("window.open('https://www.youtube.com');")
-#driver.execute_script("window.open('https://www.python.org');")
+#driver = getEdgeDriver()
+#
+# driver.get("https://accounts.google.com/signin")
 
-#tabs = driver.window_handles
-#print(tabs)  # three tabs total
+#driver.execute_script("window.open('https://example.com', '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,width=800,height=600');")
+#driver.switch_to.window(driver.window_handles[-1])
 
-# Switch to middle tab and close it
-#driver.switch_to.window(tabs[1])
-#time.sleep(2)
-#driver.close()
+#driver.get("edge://newtab")  # truly blank tab
+#driver.switch_to.window(driver.window_handles[-1])
 
-# Update tabs after closing
-#tabs = driver.window_handles
-#print(tabs)  # two tabs left
+#driver.execute_script("window.open('https://example.com', '_blank');")
 
-# Switch to first tab again
-#driver.switch_to.window(tabs[0])
-
-#time.sleep(100)  # wait and keep browser open so you can see it
-# driver.quit()  # Only call this if you want to close whole browser at the end
+# print(driver.title)
+# time.sleep(5)
+# driver.quit()
 
 
 r = sr.Recognizer()         #microphone
@@ -87,20 +94,20 @@ def parse_command(text):
 
 
 #get the specific chrome profile to launch
-def getChromeDriver():
-    global driver
-    if driver is None:
-        chrome_options = Options()
-        chrome_options.add_argument(r"user-data-dir=C:\\Users\\tmarv\\AppData\\Local\\Google\\Chrome\\User Data")
-        chrome_options.add_argument(r"profile-directory=Profile 3")
-        try:
-            driver = webdriver.Chrome(options=chrome_options)
+# def getChromeDriver():
+#     global driver
+#     if driver is None:
+#         chrome_options = Options()
+#         chrome_options.add_argument(r"user-data-dir=C:\\Users\\tmarv\\AppData\\Local\\Google\\Chrome\\User Data")
+#         chrome_options.add_argument(r"profile-directory=Profile 3")
+#         try:
+#             driver = webdriver.Chrome(options=chrome_options)
 
-        except Exception as e:
-            print("Chrome failed to start:", e)
-            speak("Chrome failed to start.")
-            return None
-    return driver
+#         except Exception as e:
+#             print("Chrome failed to start:", e)
+#             speak("Chrome failed to start.")
+#             return None
+#     return driver
 
 
 
@@ -117,7 +124,7 @@ while True:
             print(f"Command: {command_text}")
             command_keyword, argument = parse_command(command_text)
 
-            if command_keyword == "kill" or command_keyword == "stop":
+            if command_keyword == "kill yourself" or command_keyword == "stop":
                 speak("Goodbye...")
                 sys.exit()  # or break this inner loop to listen for trigger again
             
@@ -126,14 +133,14 @@ while True:
                     domain = argument.replace(" ", "")
                     full_url = f"https://www.{domain}.com/"
                     speak(f"Opening {domain}")
-                    browser = getChromeDriver()
+                    browser = getEdgeDriver()
                     if browser:
                         browser.execute_script(f"window.open('{full_url}', '_blank');")
                         browser.switch_to.window(browser.window_handles[-1])
 
                 case "search":
                     speak(f"Searching for {argument}")
-                    browser = getChromeDriver()
+                    browser = getEdgeDriver()
                     if browser:
                         browser.execute_script(f"window.open('https://www.google.com/search?q={argument}');")
                         browser.switch_to.window(browser.window_handles[-1])
@@ -144,57 +151,12 @@ while True:
                     print("Sorry, I didn’t understand the command.")
 
 
-# while True: 
-#      print("Waiting for trigger word...")
-#      spoken_text = listen()                          #listen for triggerword
-
-#      if trigger_word in spoken_text:                 #if triggerword is said 
-#          speak("Hello, what can I do for you?")
-#          command_text = listen() #get the command
-#          print(f"Command: {command_text}")
-#          command_keyword, argument  = parse_command(command_text) #fix the text to something usable
-
-#          match command_keyword:
-#             case "open":
-#                 domain = argument.replace(" ", "")
-#                 full_url = f"https://www.{domain}.com/"
-
-#                 speak(f"Opening {domain}")
-#                 browser = getChromeDriver()
-#                 if browser:
-#                         browser.switch_to.new_window('tab')
-#                         browser.get(full_url)
-
-#             case "kill":
-#                 speak("Goodbye...")
-#                 sys.exit()
-
-#             case "play":
-#                 speak(f"Playing {argument}")
-#                 # Add play logic here
-
-#             case "search":
-#                 speak(f"Searching for {argument}")
-#                 browser = getChromeDriver()
-#                 if browser:
-#                     browser.execute_script(f"window.open('https://www.google.com/search?q={argument}', '_blank');")
-#                     browser.switch_to.window(browser.window_handles[-1])
-
-#             case "new":
-#                 browser = getChromeDriver()
-#                 if browser:
-#                     browser.execute_script(f"window.open('https://www.google.com/search?q={argument}', '_blank');")
-#                     browser.switch_to.window(browser.window_handles[-1])           
-            
-#             case _:
-#                  speak("Sorry, I didn’t understand the command.")
-
-
-
 
 
         #TO DO
+            #make it open new tab if a window is already open (right now it opens a new window everytime)
             #make it keep listening when one comand is completed
+
             #add a close ___ tab 
 
             #add a close window 
