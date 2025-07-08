@@ -19,10 +19,66 @@ import subprocess
 import pyautogui
 import winsound
 
+import requests
+import os
+from mistralai import Mistral
+
+api_key = "AzgyjA0icarZKB9DyB1aFMNXiwBWkuML"
+model = "mistral-small-latest"
+client = Mistral(api_key=api_key)
+
+
+conversation = [ #this holds the conversation history. up to 21 lines (1 system, 10 user, 10 assistant)
+    {
+        "role": "system",
+        "content": (
+            "You are a helpful voice assistant for Thomas."
+            "Always respond clearly and concisely in 1–2 sentences max. "
+            "If you receive a vague command, assume it's related to web browsing, searching, or note taking."
+        )
+    }
+]
+
+
+#need to make the program loop through custom to check if custom commadn is said
+custom_commands ={   #these phases are custom. if the ai hears any of the left ones it interprets them as the right one
+    "pull up": "open",
+    "google": "search"
+}
+
+def customCommandCheck(user_input):
+    for phrase in custom_commands:
+        if phrase in spoken_text:
+            return spoken_text.replace(phrase, custom_commands[phrase])
+    return user_input
+
+def askAI(spoken_text):
+
+    mapped_input = customCommandCheck(spoken_text) #check for custom phrase
+
+    conversation.append({"role": "user", "content":spoken_text})  #add the prompt to the conversation history
+    
+    if len(conversation) > 21: # if the conversation history is bigger than 21 (1 system, 10 assistant, 10 user)
+        del conversation[1:3] # Remove oldest user+assistant pair (keep system message at index 0)
+
+
+    response = client.chat.complete(
+        model= model,
+        messages = conversation, #pull the conversation
+        temperature=0.5
+    )
+    reply = response.choices[0].message.content.strip() #generate the reponse
+    conversation.append({"role": "assistant", "content": reply})
+    print(conversation)
+    return reply
+
+
+
+
+
 #driver = None  # Initially no browser is open
 
 browser = None
-
 
 
 
@@ -208,7 +264,9 @@ while on:
 
             command_text = listen()
             print(f"Command: {command_text}")
-            command_keyword, argument = parse_command(command_text)
+            
+            command_keyword = askAI(command_text)                                                               # this is an issue as of now, the ai responds with a reply not a word FIX THIS
+            #command_keyword, argument = parse_command(command_text)            #keep incase
 
             if command_keyword == "stop":
                 speak("Goodbye...")
@@ -289,6 +347,15 @@ while on:
                     open_notepad_and_type()
                     active=False
                 # add more cases...
+
+                case "test":
+                    speak("What would you like to ask me?")
+                    spoken_text = listen()  # from your voice input
+                    if spoken_text:
+                        answer = askAI(spoken_text)
+                        speak(answer)  # TTS it back
+                    active = False
+
 
                 case _:
                     print("Sorry, I didn’t understand the command.")
