@@ -10,6 +10,9 @@ import subprocess
 import pyautogui
 import winsound
 
+
+
+
 from ListenandSpeak import speak, listen
 
 
@@ -20,7 +23,7 @@ from ListenandSpeak import speak, listen
 
 ## browser itself ##
 browser = None
-def getEdgeDriver(url =None):
+def getEdgeDriver(url=None):
 
     global browser
     if browser is not None:
@@ -46,8 +49,17 @@ def getEdgeDriver(url =None):
     return browser
 ####
 
-## cmd handling ##
-def play_latest_video(channel_url):
+## parse the cmd to a cmd and an argument##
+def parse_command(text):
+    parts = text.strip().split()
+    if not parts:
+        return "", ""
+    return parts[0], " ".join(parts[1:])
+
+
+
+
+def play_latest_video(channel_url):                                                             #STILL AN ISSUE
     browser.get(f"{channel_url}/videos")  # go directly to the Videos tab
     time.sleep(3)  # let it load
 
@@ -97,7 +109,7 @@ def open_notepad_and_type():
         print(f"Typing: {spoken_text}")
         
         if spoken_text == "close":
-            speak("ending notes")
+            speak("ending notes") 
             r = False
             save_and_close_notepad()
         elif spoken_text == "new line":
@@ -106,7 +118,6 @@ def open_notepad_and_type():
         else:
             pyautogui.write(spoken_text, interval=0.05)  # types with small delay between keys
             pyautogui.press("space")
-
 
 
 def save_and_close_notepad():
@@ -136,8 +147,56 @@ def save_and_close_notepad():
 
 
 
-def parse_command(text):
-    parts = text.strip().split()
-    if not parts:
-        return "", ""
-    return parts[0], " ".join(parts[1:])
+def skipSong():
+    pyautogui.press('nexttrack')
+
+
+def prevSong():
+    pyautogui.press('prevtrack')
+
+
+def playorpause():    
+    pyautogui.press('playpause')
+
+
+playlists = {
+        "metal":"spotify:playlist:1hJrMsHwyS4TZYHz0j2kJ0?",
+        "undertale":"spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
+        "delta":"spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
+        "jpop":"spotify:playlist:58eCqe3T6U3MWnjAJVaZJw?",
+        "rap":"spotify:playlist:2hpSzh9vncqlHjpK4Gfv1T?",
+        "classic":"spotify:playlist:1CnsAs7lsk0EEOQNvchbD0?",
+        "rock":"spotify:playlist:0CqbH8jnHkWsuUugLlwbiI?"
+
+    }
+
+
+def spotifyplaylist(name):
+    uri = playlists.get(name.lower())
+    if uri:
+        subprocess.Popen(["start", uri], shell=True)
+        speak(f"Opening {name} playlist on Spotify")
+
+        time.sleep(3)  # Give time for Spotify to load the playlist
+        pyautogui.press('tab')
+        pyautogui.press('tab')
+        pyautogui.press('tab')
+        pyautogui.press('tab')
+        pyautogui.press('enter')
+        pyautogui.hotkey('win', 'down')
+        pyautogui.hotkey('win', 'down')
+
+    else:
+        speak("Sorry, I couldn't find that playlist.")   
+'''
+        # Locate the Play button on the screen
+        play_btn_location = pyautogui.locateCenterOnScreen('play.png', confidence=0.8)
+
+        if play_btn_location:
+            pyautogui.moveTo(play_btn_location)
+            pyautogui.click()
+            speak("Playing playlist now.")
+        else:
+            speak("I couldn't find the Play button.")
+'''
+   

@@ -1,4 +1,6 @@
 
+
+
 import ListenandSpeak
 from AI import determineIntent
 
@@ -6,7 +8,7 @@ from AI import determineIntent
 
 #active = True
 on= True
-trigger_word = "stewie"  # change this to change what the assistant listens for
+trigger_word = "ai"  # change this to change what the assistant listens for
 def start():
     while on:
         print("Waiting for trigger word...")
@@ -29,32 +31,25 @@ def start():
 
 start()
 
-
         #fixes needed
-            #ai acts wonky sometimes when it cant tell if its a question or cmd 
-            #ai will say to different things sometimes 
-            #convo mode is buggy 
-            
-
+             
+            #somehow make it run/listen faster 
+            #"recent" isn't working right 
+            #"notepad" not working right  (saving and new tab)
 
         #TO DO
-
             #add a close window 
-            
-
-
+            #make a json of history and store it somewhere. maybe sqldb
+            #have a ui overlay that i can pop out and type to the ai (maybe make it a keybind to pop out) customtkinter
 
             #add join ____ discord call 
             #add shutdown
             #add open ____ steamgame 
 
-            #add question and answer like siri ai 
-            #add open spotify app / and play playlist
-            #one computer startup open and run 
-            #gui to get feedback taskbar icon
+            #on computer startup open and run 
+            #gui to get feedback taskbar icon customtkinter
 
 
-        
         
         
         

@@ -3,12 +3,6 @@ import pyttsx3
 
 
 
-
-
-
-
-
-
 r = sr.Recognizer()         #microphone
 
 #initialize text to speech
@@ -23,8 +17,6 @@ engine.setProperty('voice', voices[1].id) #1 is female 0 is male
 
 
 
-
-
 #text to speech
 def speak(text):
     engine.say(text)
@@ -34,6 +26,8 @@ def speak(text):
 #listen to all audio will stop running when trigger word is said
 def listen():
     with sr.Microphone() as source:
+        r.pause_threshold = 1  # Wait for 2 seconds of silence before ending
+        r.energy_threshold = 100 
         print("Listening...")
         audio = r.listen(source)
     try:
