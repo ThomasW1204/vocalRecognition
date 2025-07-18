@@ -1,13 +1,12 @@
 from mistralai import Mistral
 from CMDs import executeCMDs
-from ListenandSpeak import speak, listen
+from sharedObj import va
 from browserCMDs import parse_command
 
 
 api_key = "AzgyjA0icarZKB9DyB1aFMNXiwBWkuML"
 model = "mistral-small-latest"
 client = Mistral(api_key=api_key)
-
 
 conversation = [ #this holds the conversation history. up to 21 lines (1 system, 10 user, 10 assistant)
     {
@@ -16,6 +15,7 @@ conversation = [ #this holds the conversation history. up to 21 lines (1 system,
             "You are a helpful voice assistant for Thomas."
             "Always respond clearly and concisely in 1–2 sentences max. "
             "If you receive a vague command, assume it's related to controlling my computer like: web browsing, searching, or note taking and only say something like 'sure thing'."
+            "if the prompt is empty meaning "" or " " then do not say a word"
             "at the end of a question do not say anything like 'have anymore questions' or 'would you like to know more'"
         )
     }
@@ -53,28 +53,32 @@ def determineIntent(spoken_text):
             {"role": "user", "content": classifyPrompt}
         ]
     )
+
+    if((spoken_text == "") or (spoken_text == " ")):
+        va.speak("try again")
+        return False
     
     intent = response.choices[0].message.content.strip().lower()
     if(intent == "question"):
         convomode = True
         AIresponse = askAI(spoken_text)  #response to users question
-        speak(AIresponse)
+        va.speak(AIresponse)
         while convomode:                            
-            speak("anything else?") 
-            followup =listen().lower()
-            if "no" in followup or "na" in followup: 
-                speak("ok exiting convo mode")
+            va.speak("anything else?") 
+            followup =va.listen_until_heard().lower()
+            if followup in ["no", "na", "nah", "nope"]: 
+                va.speak("ok exiting convo mode")
                 return False
             
             AIresponse = askAI(followup)
-            speak(AIresponse)
+            va.speak(AIresponse)
     elif(intent == "command"):
         userInput = customCommandCheck(spoken_text)
         cmd, args = parse_command(userInput)
         executeCMDs(cmd,args)  
         return False 
     else:
-        speak("error in intent")
+        va.speak("error in intent")
         return False
 
 

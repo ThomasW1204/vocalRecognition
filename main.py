@@ -1,35 +1,44 @@
-
-
-
-import ListenandSpeak
-from AI import determineIntent
-
+print("initializing...")
+from sharedObj import va
+import AI 
 
 
 #active = True
 on= True
 trigger_word = "ai"  # change this to change what the assistant listens for
+
+
+def triggered():
+    active = True
+    command_text = va.listen_until_heard(first=True)  
+
+    while active:       #this is when its listening for a actual command
+        #command_text = ListenandSpeak.listen()
+
+        print(f"Command: {command_text}")
+
+        conversationMode = AI.determineIntent(command_text)        #this will determine the intent of the user and either execute cmd or answer the user question
+
+        if not conversationMode:   #this might error 
+            active = False
+
+
+
 def start():
     while on:
         print("Waiting for trigger word...")
-        spoken_text = ListenandSpeak.listen()   #anything you say is stored in this var 
-    
+
+        spoken_text = va.listen_until_heard()   #annhing you say is stored in this var 
+        print(spoken_text)
         if trigger_word in spoken_text:    #if you say the trigger word
-            active = True
-            ListenandSpeak.speak("Whats up?")
-
-    
-            while active:       #this is when its listening for a actual command
-                command_text = ListenandSpeak.listen()
-                print(f"Command: {command_text}")
-
-                conversationMode = determineIntent(command_text)        #this will determine the intent of the user and either execute cmd or answer the user question
-
-                if not conversationMode:   #this might error 
-                    active = False
+            triggered()
 
 
 start()
+
+
+
+
 
         #fixes needed
              

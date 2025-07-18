@@ -1,19 +1,140 @@
 from selenium import webdriver
 import time
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
-from selenium.webdriver.edge.options import Options 
-from selenium.webdriver.edge.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from webdriver_manager.firefox import GeckoDriverManager
 import subprocess
 import pyautogui
 import winsound
 
 
+class browserCMDs:
+    def __init__(self,va):
+        self.va = va
+        self.browser = None
+
+    def getFirefoxDriver(self,url=None):
+        if self.browser is not None:
+            try:
+                _ = self.browser.title
+            except:
+                self.browser.quit()
+                self.browser = None
+
+        options = FirefoxOptions()
+        options.add_argument("--start-maximized")
+        options.set_preference("toolkit.cosmeticAnimations.enabled", False)
+        options.set_preference("browser.aboutConfig.showWarning", False)
+        options.set_preference("browser.tabs.animate", False)
+        options.profile = r"C:\Users\tmarv\AppData\Roaming\Mozilla\Firefox\Profiles\xau9cu1y.tom"
+
+        service = FirefoxService(GeckoDriverManager().install())
+        self.browser = webdriver.Firefox(service=service, options=options)
+
+        if url:
+            self.browser.get(url)
+
+        return self.browser
 
 
-from ListenandSpeak import speak, listen
+    def get_channel_url(self, channel_name):
+        search_url = f"https://www.youtube.com/results?search_query={channel_name}&sp=EgIQAg%253D%253D"
+        self.browser.get(search_url)
+        time.sleep(3)
+        try:
+            channel_element = self.browser.find_element(By.XPATH, "//a[@href and contains(@href, '/@')]")
+            return channel_element.get_attribute("href")
+        except Exception as e:
+            print("Could not find a channel URL:", e)
+            return None
+
+
+    def play_latest_video(self, channel_url):
+        self.browser.get(f"{channel_url}/videos")
+        time.sleep(3)
+        try:
+            first_video = self.browser.find_element(By.ID, "video-title")
+            first_video.click()
+        except Exception as e:
+            print("Failed to find video:", e)
+
+
+    def open_notepad_and_type(self):
+        subprocess.Popen("notepad.exe")
+        time.sleep(1)
+        self.va.speak("What do you want me to type?")
+
+        while True:
+            winsound.Beep(800, 20)
+            text = self.va.listen()
+            if text == "close":
+                self.va.speak("Ending notes")
+                self.save_and_close_notepad()
+                break
+            elif text == "new line":
+                pyautogui.press("enter")
+                self.va.speak("New Line")
+            else:
+                pyautogui.write(text, interval=0.05)
+                pyautogui.press("space")
+
+
+    def save_and_close_notepad(self):
+        pyautogui.hotkey("ctrl", "s")
+        time.sleep(1)
+        while True:
+            self.va.speak("What do you want to name the file?")
+            name = self.va.listen()
+            pyautogui.write(name)
+            self.va.speak(f"Is '{name}' correct?")
+            confirm = self.va.listen()
+            if confirm.lower() == "yes":
+                pyautogui.press("enter")
+                time.sleep(1)
+                pyautogui.hotkey("alt", "f4")
+                break
+    
+    
+    def skip_song(self):
+        pyautogui.press("nexttrack")
+
+
+    def prev_song(self):
+        pyautogui.press("prevtrack")
+
+
+    def play_or_pause(self):
+        pyautogui.press("playpause")
+
+
+    def spotify_playlist(self, name):
+        playlists = {
+            "metal": "spotify:playlist:1hJrMsHwyS4TZYHz0j2kJ0?",
+            "undertale": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
+            "delta": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
+            "jpop": "spotify:playlist:58eCqe3T6U3MWnjAJVaZJw?",
+            "rap": "spotify:playlist:2hpSzh9vncqlHjpK4Gfv1T?",
+            "classic": "spotify:playlist:1CnsAs7lsk0EEOQNvchbD0?",
+            "rock": "spotify:playlist:0CqbH8jnHkWsuUugLlwbiI?"
+        }
+        uri = playlists.get(name)
+        if uri:
+            subprocess.Popen(["spotify", uri])
+            self.va.speak(f"Opening {name} playlist")
+        else:
+            self.va.speak(f"Playlist {name} not found.")        
+
+   
+
+
+def parse_command(text):
+    parts = text.strip().split()
+    if not parts:
+        return "", ""
+    return parts[0], " ".join(parts[1:])
 
 
 
@@ -21,10 +142,10 @@ from ListenandSpeak import speak, listen
 #driver = None  # Initially no browser is open
 
 
-## browser itself ##
+##  edge browser itself ##
+'''
 browser = None
 def getEdgeDriver(url=None):
-
     global browser
     if browser is not None:
         return browser
@@ -47,7 +168,43 @@ def getEdgeDriver(url=None):
         browser.get(url)
     
     return browser
+    '''
 ####
+
+
+'''
+browser = None
+def getFirefoxDriver(url=None):
+    global browser
+    
+    # If browser was previously closed, reset it
+    if browser is not None:
+        try:
+            browser.title  # Try accessing to check if it's alive
+        except:
+            browser.quit()
+            browser = None
+
+    options = FirefoxOptions()
+    options.add_argument("--start-maximized")
+    options.set_preference("toolkit.cosmeticAnimations.enabled", False)
+    options.set_preference("browser.aboutConfig.showWarning", False)
+    options.set_preference("browser.tabs.animate", False)
+
+    service = FirefoxService(GeckoDriverManager().install())  # Auto installs geckodriver
+    browser = webdriver.Firefox(service=service, options=options)
+
+    if url:
+        browser.get(url)
+
+    return browser
+
+
+
+
+
+
+
 
 ## parse the cmd to a cmd and an argument##
 def parse_command(text):
@@ -79,7 +236,7 @@ def get_channel_url(channel_name):
     # `sp=EgIQAg%253D%253D` filters for Channels only
 
     if browser is None:
-        browser = getEdgeDriver()
+        browser = getFirefoxDriver()
 
     browser.get(search_url)
     time.sleep(3)  # wait for page to load
@@ -99,7 +256,7 @@ def open_notepad_and_type():
     subprocess.Popen("notepad.exe")
     time.sleep(1)  
 
-    speak("What do you want me to type? on beep, say something")
+    va.speak("What do you want me to type? on beep, say something")
 
     while r:
         winsound.Beep(800, 20)
@@ -188,15 +345,15 @@ def spotifyplaylist(name):
 
     else:
         speak("Sorry, I couldn't find that playlist.")   
-'''
-        # Locate the Play button on the screen
-        play_btn_location = pyautogui.locateCenterOnScreen('play.png', confidence=0.8)
 
-        if play_btn_location:
-            pyautogui.moveTo(play_btn_location)
-            pyautogui.click()
-            speak("Playing playlist now.")
-        else:
-            speak("I couldn't find the Play button.")
 '''
-   
+
+
+
+
+
+
+#for starting a steam game may have to map the specifc games to steam ids to implement. unless i can figure out how to do it dinamycally
+
+
+

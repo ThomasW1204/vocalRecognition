@@ -1,45 +1,46 @@
 import sys
-
-
-import ListenandSpeak
-import browserCMDs
+import time
+from sharedObj import va,commands
 
 
 def executeCMDs(command_keyword,argument):
     if command_keyword == "stop":
-        ListenandSpeak.speak("Goodbye...")
+        va.speak("Goodbye...")
         sys.exit()  # or break this inner loop to listen for trigger again
 
     match command_keyword:
         case "open":                                #Open a specific website 
             domain = argument.replace(" ", "")
             full_url = f"https://www.{domain}.com/"
-            ListenandSpeak.speak(f"Opening {domain}")
-            if browserCMDs.browser is None:
-                browser = browserCMDs.getEdgeDriver(full_url)
+            va.speak(f"Opening {domain}")
+            
+            start = time.time()
+            if commands.browser is None:
+                browser = commands.getFirefoxDriver(full_url)
             else:
-                browser = browserCMDs.getEdgeDriver()
+                browser = commands.getFirefoxDriver()
                 browser.execute_script(f"window.open('{full_url}', '_blank');")     #use this when a window is already open. (add new tab)
                 browser.switch_to.window(browser.window_handles[-1])
-            
+            end = time.time()
+            print(f"Elapsed time: {end - start:.6f} seconds")
 
         case "search":                              #search a specific thing on google
-            ListenandSpeak.speak(f"Searching for {argument}")
+            va.speak(f"Searching for {argument}")
 
             
-            if browserCMDs.browser is None:
-                browser = browserCMDs.getEdgeDriver(f'https://www.google.com/search?q={argument}')
+            if commands.browser is None:
+                browser = commands.getFirefoxDriver(f'https://www.google.com/search?q={argument}')
             else:
-                browser = browserCMDs.getEdgeDriver()
+                browser = commands.getFirefoxDriver()
                 browser.execute_script(f"window.open('https://www.google.com/search?q={argument}');")
                 browser.switch_to.window(browser.window_handles[-1])
             
 
         case "close":                               #close a specific tab
-            browser = browserCMDs.getEdgeDriver()  # browser always initialized
+            browser = commands.getFirefoxDriver()  # browser always initialized
            
             tab = argument.lower()
-            ListenandSpeak.speak(f"closing {tab}")
+            va.speak(f"closing {tab}")
            
             for handle in browser.window_handles:   #loop through the unique tab strings from selenium
                 browser.switch_to.window(handle)    #points a tab the loop looks at. doesn't switch
@@ -51,66 +52,67 @@ def executeCMDs(command_keyword,argument):
 
                     break
             else:
-                ListenandSpeak.speak(f"No tab matching {tab} found.")
+                va.speak(f"No tab matching {tab} found.")
             
 
         case "youtube":                             #open a specific channel on youtube
             domain = argument.replace(" ", "")
             full_url = f"https://www.youtube.com/{domain}"
-            ListenandSpeak.speak(f"Opening {domain} on YouTube")
+            va.speak(f"Opening {domain} on YouTube")
 
-            if browserCMDs.browser is None:
-                browser = browserCMDs.getEdgeDriver(full_url)
+            if commands.browser is None:
+                browser = commands.getFirefoxDriver(full_url)
             else:
-                browser = browserCMDs.getEdgeDriver()
+                browser = commands.getFirefoxDriver()
                 browser.execute_script(f"window.open('{full_url}', '_blank');")
                 browser.switch_to.window(browser.window_handles[-1])
 
 
         case "recent":                              #open the most recent video from a specific youtube channel STILL ISSUE
 
-            channel_url = browserCMDs.get_channel_url(argument)
-            ListenandSpeak.speak(f"Opening the latest video from {argument}")
+            channel_url = commands.get_channel_url(argument)
+            va.speak(f"Opening the latest video from {argument}")
 
-            if browserCMDs.browser is None:
-                browser = browserCMDs.getEdgeDriver(channel_url)
+            if commands.browser is None:
+                browser = commands.getFirefoxDriver(channel_url)
             else:
-                browser = browserCMDs.getEdgeDriver()
+                browser = commands.getFirefoxDriver()
                 browser.execute_script(f"window.open('{channel_url}', '_blank');")
                 browser.switch_to.window(browser.window_handles[-1])
 
-            browserCMDs.play_latest_video(channel_url)
+            commands.play_latest_video(channel_url)
 
 
         case "notepad":                             #A little wonky with opening a new notepad and saving if its already saved. need fix
-            browserCMDs.open_notepad_and_type()
+            commands.open_notepad_and_type()
 
 
         case "skip":                                #skip song
-            ListenandSpeak.speak("skipping")
-            browserCMDs.skipSong()
+            va.speak("skipping")
+            commands.skipSong()
 
 
         case "previous":                            #previous song
-            ListenandSpeak.speak("back")
-            browserCMDs.prevSong()
+            va.speak("back")
+            commands.prevSong()
         
 
         case "pause":                               #pause song
-            ListenandSpeak.speak("pausing")
-            browserCMDs.playorpause()
+            va.speak("pausing")
+            commands.playorpause()
 
 
         case "play":                                #play song
-            ListenandSpeak.speak("playing")
-            browserCMDs.playorpause()
+            va.speak("playing")
+            commands.playorpause()
 
 
         case "playlist":                            #play a specific playlist (a little wonky)
-                browserCMDs.spotifyplaylist(argument)
-
+                commands.spotifyplaylist(argument)
 
         case _:
-            ListenandSpeak.speak("Sorry try again")
+            from main import triggered  # Local import avoids circular issue
+            va.speak("Sorry try again")
+            triggered()
             print("Sorry, I didn’t understand the command.")
 
