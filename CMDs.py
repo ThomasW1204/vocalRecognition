@@ -1,10 +1,9 @@
 import sys
 import time
-from sharedObj import va,commands
 
-
-def executeCMDs(command_keyword,argument):
-    if command_keyword == "stop":
+#executes given command from keyword and argument (ex: open youtube)
+def executeCMDs(command_keyword,argument,va,commands):
+    if ((command_keyword == "stop") | (command_keyword == "exit")):
         va.speak("Goodbye...")
         sys.exit()  # or break this inner loop to listen for trigger again
 

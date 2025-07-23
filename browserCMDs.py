@@ -16,6 +16,7 @@ class browserCMDs:
         self.va = va
         self.browser = None
 
+
     def getFirefoxDriver(self,url=None):
         if self.browser is not None:
             try:
@@ -106,11 +107,11 @@ class browserCMDs:
         pyautogui.press("prevtrack")
 
 
-    def play_or_pause(self):
+    def playorpause(self):
         pyautogui.press("playpause")
 
 
-    def spotify_playlist(self, name):
+    def spotifyplaylist(self, name):
         playlists = {
             "metal": "spotify:playlist:1hJrMsHwyS4TZYHz0j2kJ0?",
             "undertale": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
@@ -124,17 +125,20 @@ class browserCMDs:
         if uri:
             subprocess.Popen(["spotify", uri])
             self.va.speak(f"Opening {name} playlist")
+            time.sleep(3)  # Give time for Spotify to load the playlist
+            pyautogui.press('tab')
+            pyautogui.press('tab')
+            pyautogui.press('tab')
+            pyautogui.press('tab')
+            pyautogui.press('enter')
+            pyautogui.hotkey('win', 'down')
+            pyautogui.hotkey('win', 'down')
         else:
             self.va.speak(f"Playlist {name} not found.")        
 
    
 
 
-def parse_command(text):
-    parts = text.strip().split()
-    if not parts:
-        return "", ""
-    return parts[0], " ".join(parts[1:])
 
 
 
