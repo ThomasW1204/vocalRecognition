@@ -10,7 +10,15 @@ import subprocess
 import pyautogui
 import winsound
 
-
+playlists = {
+            "metal": "spotify:playlist:1hJrMsHwyS4TZYHz0j2kJ0?",
+            "undertale": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
+            "delta": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
+            "jpop": "spotify:playlist:58eCqe3T6U3MWnjAJVaZJw?",
+            "rap": "spotify:playlist:2hpSzh9vncqlHjpK4Gfv1T?",
+            "classic": "spotify:playlist:1CnsAs7lsk0EEOQNvchbD0?",
+            "rock": "spotify:playlist:0CqbH8jnHkWsuUugLlwbiI?"
+        }
 class browserCMDs:
     def __init__(self,va):
         self.va = va
@@ -66,6 +74,8 @@ class browserCMDs:
     def open_notepad_and_type(self):
         subprocess.Popen("notepad.exe")
         time.sleep(1)
+        pyautogui.hotkey('ctrl', 'n')
+        time.sleep(2)
         self.va.speak("What do you want me to type?")
 
         while True:
@@ -96,36 +106,32 @@ class browserCMDs:
                 pyautogui.press("enter")
                 time.sleep(1)
                 pyautogui.hotkey("alt", "f4")
+                self.va.speak("done")
                 break
+            else:
+                pyautogui.hotkey('ctrl', 'a')  # Select all text
+                pyautogui.press('backspace')   # Delete selected text
     
     
-    def skip_song(self):
+    def skipSong(self):
         pyautogui.press("nexttrack")
 
 
-    def prev_song(self):
+    def prevSong(self):
         pyautogui.press("prevtrack")
 
 
     def playorpause(self):
         pyautogui.press("playpause")
 
-
+   
     def spotifyplaylist(self, name):
-        playlists = {
-            "metal": "spotify:playlist:1hJrMsHwyS4TZYHz0j2kJ0?",
-            "undertale": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
-            "delta": "spotify:playlist:2cTmuzWov9agKMHEIge9VY?",
-            "jpop": "spotify:playlist:58eCqe3T6U3MWnjAJVaZJw?",
-            "rap": "spotify:playlist:2hpSzh9vncqlHjpK4Gfv1T?",
-            "classic": "spotify:playlist:1CnsAs7lsk0EEOQNvchbD0?",
-            "rock": "spotify:playlist:0CqbH8jnHkWsuUugLlwbiI?"
-        }
-        uri = playlists.get(name)
+        uri = playlists.get(name.lower())
         if uri:
-            subprocess.Popen(["spotify", uri])
-            self.va.speak(f"Opening {name} playlist")
-            time.sleep(3)  # Give time for Spotify to load the playlist
+            subprocess.Popen(["start", uri], shell=True)
+            self.va.speak(f"Opening {name} playlist on Spotify")
+
+            time.sleep(5)  # Give time for Spotify to load the playlist
             pyautogui.press('tab')
             pyautogui.press('tab')
             pyautogui.press('tab')
@@ -133,8 +139,9 @@ class browserCMDs:
             pyautogui.press('enter')
             pyautogui.hotkey('win', 'down')
             pyautogui.hotkey('win', 'down')
+
         else:
-            self.va.speak(f"Playlist {name} not found.")        
+            self.va.speak("Sorry, I couldn't find that playlist.")          
 
    
 

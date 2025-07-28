@@ -1,11 +1,16 @@
 print("initializing...")
+import sys
+import time
 from ListenandSpeak import ListenandSpeak
 from browserCMDs import browserCMDs
 from mistralai import Mistral
 from AI_module import AI
 from UI import UI
+from trayIcon import trayIcon
 import threading
 import keyboard
+import sharedObj
+
 
 ##obj creation##
 va = ListenandSpeak()
@@ -27,7 +32,6 @@ conversation = [ #this holds the conversation history. up to 21 lines (1 system,
 ]
 
 
- #need to make the program loop through custom to check if custom commadn is said
 custom_commands ={   #these phases are custom. if the ai hears any of the left ones it interprets them as the right one
         "pull up": "open",
         "google": "search",
@@ -42,11 +46,22 @@ custom_commands ={   #these phases are custom. if the ai hears any of the left o
         "play playlist": "playlist",
         "start playlist":"playlist"
         }
-ai = AI(va,api_key,client,model,conversation,custom_commands)
+
+for attempt in range(2):
+    try:
+        ai = AI(va,api_key,client,model,conversation,custom_commands)
+        break
+    except Exception as e:
+        print(f"failed to initialize the AI: {e}")
+        va.speak("there was a problem with the AI retrying...")
+        time.sleep(1)
+
+if ai is None:
+    va.speak("ai failed to start the program again")
+    sys.exit()
 
 ######################################################################################
 
-#active = True
 on= True
 trigger_word = "ai"  # change this to change what the assistant listens for
 
@@ -66,7 +81,6 @@ def triggered():
             active = False
 
 
-
 def start():
     while on:
         print("Waiting for trigger word...")
@@ -75,7 +89,6 @@ def start():
         print(spoken_text)
         if trigger_word in spoken_text:    #if you say the trigger word
             triggered()
-
 
 
 uirunning = False
@@ -104,7 +117,6 @@ def onclose():
         uiinstance = None
 
 
-
 def hotkey():
     print("Waiting for hotkey (Ctrl+Shift+;)...")
     while True:
@@ -113,19 +125,19 @@ def hotkey():
         threading.Thread(target=handleUI, daemon=True).start()
 
 
+tray = trayIcon(uiFunction=handleUI)
+
+
 if __name__ == "__main__":
+    #threading.Thread(target=run_tray_icon, daemon=True).start()  #thread for the taskbar icon
+    threading.Thread(target=tray.run, daemon=True).start()
     start()    
+
     
-    
-   
-
-
-
 
         #fixes needed
             #somehow make it run/listen faster 
             #"recent" isn't working right 
-            #"notepad" not working right  (saving and new tab)
 
         #TO DO
             #add a close window 
