@@ -3,10 +3,10 @@ import pyttsx3
 
 
 class ListenandSpeak:
-    def __init__(self, rate=150, volume=1.0, voice_index=1):
+    def __init__(self,ui, rate=150, volume=1.0, voice_index=1):
         self.recognizer = sr.Recognizer()
         self.engine = pyttsx3.init()
-        
+        self.ui = ui
         # Configure TTS engine
         self.engine.setProperty('rate', rate)
         self.engine.setProperty('volume', volume)
@@ -27,6 +27,7 @@ class ListenandSpeak:
             if prompt:
                 self.speak(prompt)
             print("Listening...")
+            self.ui.log("Listening")
             audio = self.recognizer.listen(source)
 
         try:
@@ -51,9 +52,11 @@ class ListenandSpeak:
                     text = self.recognizer.recognize_google(audio).lower()
                     if text.strip():
                         print(f"Heard: {text}")
+                        self.ui.log(f"Heard: {text}")
                         return text
                 except sr.UnknownValueError:
                     print("Didn't catch that. Still listening...")
+                    self.ui.log("Didn't catch that. Still listening...")
                 except sr.RequestError as e:
                     print(f"API error: {e}")
                     break

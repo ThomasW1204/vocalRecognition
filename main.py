@@ -1,4 +1,6 @@
+
 print("initializing...")
+from multiprocessing import Process
 import sys
 import time
 from ListenandSpeak import ListenandSpeak
@@ -13,8 +15,9 @@ import sharedObj
 
 
 ##obj creation##
-va = ListenandSpeak()
+va = ListenandSpeak(None)
 commands = browserCMDs(va)
+
 api_key = "AzgyjA0icarZKB9DyB1aFMNXiwBWkuML"
 model = "mistral-small-latest"
 client = Mistral(api_key=api_key)
@@ -44,18 +47,27 @@ custom_commands ={   #these phases are custom. if the ai hears any of the left o
         "play song": "play",
         "pause song": "pause",
         "play playlist": "playlist",
-        "start playlist":"playlist"
+        "start playlist":"playlist",
+        "set the mood":"mood",
+        "set the":"mood",
+        "d":"done",
+        "finish":"done"
         }
 
+ai = AI(va,api_key,client,model,conversation,custom_commands)
+ui = UI(ai)
+va.ui = ui
+"""
 for attempt in range(2):
     try:
         ai = AI(va,api_key,client,model,conversation,custom_commands)
+        UI.ai=ai
         break
     except Exception as e:
         print(f"failed to initialize the AI: {e}")
         va.speak("there was a problem with the AI retrying...")
         time.sleep(1)
-
+"""
 if ai is None:
     va.speak("ai failed to start the program again")
     sys.exit()
@@ -74,22 +86,24 @@ def triggered():
         #command_text = ListenandSpeak.listen()
 
         print(f"Command: {command_text}")
-
+        ui.log(f"Command: {command_text}")
         conversationMode = ai.determineIntent(command_text,commands)        #this will determine the intent of the user and either execute cmd or answer the user question
 
         if not conversationMode:   #this might error 
             active = False
 
 
-def start():
+def start(ui):
     while on:
         print("Waiting for trigger word...")
-        threading.Thread(target=hotkey, daemon=True).start()
+        ui.log("Waiting for trigger word...")
+        #threading.Thread(target=hotkey, daemon=True).start()
         spoken_text = va.listen_until_heard()   #annhing you say is stored in this var 
         print(spoken_text)
         if trigger_word in spoken_text:    #if you say the trigger word
             triggered()
 
+'''
 
 uirunning = False
 uiinstance = None
@@ -123,18 +137,21 @@ def hotkey():
         keyboard.wait("ctrl+shift+;")
         print("Hotkey pressed, launching UI...")
         threading.Thread(target=handleUI, daemon=True).start()
-
-
-tray = trayIcon(uiFunction=handleUI)
+'''
 
 
 if __name__ == "__main__":
-    #threading.Thread(target=run_tray_icon, daemon=True).start()  #thread for the taskbar icon
+    tray = trayIcon(uiFunction=None)
     threading.Thread(target=tray.run, daemon=True).start()
-    start()    
 
-    
+    # Create UI in main thread
+   
+    ListenandSpeak.ui = ui
+    # Run your assistant loop in background thread
+    threading.Thread(target=start, args=(ui,), daemon=True).start()
 
+    # Start Tkinter mainloop (blocks here)
+    ui.mainloop()
         #fixes needed
             #somehow make it run/listen faster 
             #"recent" isn't working right 
