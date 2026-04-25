@@ -18,7 +18,7 @@ import sharedObj
 va = ListenandSpeak(None)
 commands = browserCMDs(va)
 
-api_key = "AzgyjA0icarZKB9DyB1aFMNXiwBWkuML"
+api_key = ""
 model = "mistral-small-latest"
 client = Mistral(api_key=api_key)
 conversation = [ #this holds the conversation history. up to 21 lines (1 system, 10 user, 10 assistant)
