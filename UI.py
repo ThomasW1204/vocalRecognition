@@ -52,7 +52,7 @@ class UI(ctk.CTk):
         # --- Quick Actions PAGE CONTENT ---
         self.actions_frame = ctk.CTkFrame(self.actions_tab, corner_radius=10)
         self.actions_frame.pack(fill="both", expand=True, padx=10, pady=10)
-        #self.set_tab_bg(self.actions_frame, r"C:\Users\tmarv\Desktop\VocalRecog\vocalRecognition\126008721_p0_master1200.jpg")
+        
 
         action1 = ctk.CTkButton(self.actions_frame, text="Start Task", command=lambda: self.log("Started Task"))
         action1.pack(pady=5)
