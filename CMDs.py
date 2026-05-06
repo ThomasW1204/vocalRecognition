@@ -117,31 +117,6 @@ def executeCMDs(command_keyword,argument,va,commands):
                     commands.spotifyplaylist(argument)
 
 
-            case "mood":
-                folder = r"C:\Users\tmarv\Desktop\cs221\221"
-                bat_file = "run.bat"
-                bat_path = os.path.join(folder, bat_file)
-                subprocess.run(bat_path, shell=True, cwd=folder)  
-                print("done")
-                
-                time.sleep(10)
-
-                # Type "6" and press Enter
-                pyautogui.typewrite("6")
-                pyautogui.press("enter")         
-
-            case "done":
-                subprocess.run('taskkill /f /im Lively.exe >nul 2>&1', shell=True)
-
-                # 2. Kill chrome.exe
-                subprocess.run('taskkill /f /im chrome.exe', shell=True)
-
-                # 3. Start Windows Terminal with your batch file
-                subprocess.run(
-                    r'start wt -p "Command Prompt" cmd /k "C:\Users\tmarv\Desktop\CS221\221\test2.bat"',
-                    shell=True
-                )
-
             case _:
                 from main import triggered  # Local import avoids circular issue
                 va.speak("Sorry try again")
